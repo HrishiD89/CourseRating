@@ -3,13 +3,16 @@ import "dotenv/config";
 import connectDB from "./config/db.js";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
+import courseRoutes from "./routes/course.routes.js";
 
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use("/auth", authRoutes);
+app.use("/course", courseRoutes);
 
 const startServer = async () => {
     try {

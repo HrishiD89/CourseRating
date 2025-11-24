@@ -1,4 +1,3 @@
-import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/jwt.js";
 import User from "../model/User.js";
 
