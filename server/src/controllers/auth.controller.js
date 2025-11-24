@@ -1,5 +1,5 @@
 import { generateToken } from "../utils/jwt.js";
-import User from "../model/User.js";
+import User from "../models/User.js";
 
 export const register = async (req, res) => {
     try {
@@ -21,6 +21,7 @@ export const register = async (req, res) => {
 
         const token = generateToken({
             id: newUser._id,
+            name: newUser.name,
             email: newUser.email,
             role: newUser.role
         });
@@ -60,6 +61,7 @@ export const login = async (req, res) => {
 
         const token = generateToken({
             id: user._id,
+            name: user.name,
             email: user.email,
             role: user.role,
         });

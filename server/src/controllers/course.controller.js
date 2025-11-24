@@ -1,4 +1,4 @@
-import Course from "../model/Course.js";
+import Course from "../models/Course.js";
 import mongoose from "mongoose";
 
 const getAllCourses = async (req, res) => {
@@ -7,7 +7,7 @@ const getAllCourses = async (req, res) => {
         if (!courses) {
             return res.status(404).json({ message: "Courses not found" })
         }
-        res.status(200).json({ message: "Courses fetched successfully", courses })
+        res.status(200).json({ user: req.user , message: "Courses fetched successfully", courses})
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Internal server error" })
@@ -23,7 +23,7 @@ const getCourseById = async (req, res) => {
         if (!course) {
             return res.status(404).json({ message: "Course not found" })
         }
-        res.status(200).json({ message: "Course fetched successfully", course })
+        res.status(200).json({ message: "Course fetched successfully", course, user: req.user })
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Internal server error" })
@@ -36,7 +36,7 @@ const searchCourse = async (req, res) => {
         if (!courses) {
             return res.status(404).json({ message: "Courses not found" })
         }
-        res.status(200).json({ message: "Courses fetched successfully", courses })
+        res.status(200).json({ message: "Courses fetched successfully", courses, user: req.user })
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Internal server error" })
