@@ -1,19 +1,20 @@
 import express from "express";
 import "dotenv/config";
 import connectDB from "./config/db.js";
+import cors from "cors";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
-const PORT = process.env.PORT || 5000;
+app.use(express.json());
+app.use(cors());
 
-app.get("/", (req, res) => {
-    res.send("Our API")
-})
+app.use("/auth", authRoutes);
 
 const startServer = async () => {
     try {
         await connectDB();
-        app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
+        app.listen(process.env.PORT, () => console.log(`Server running on port http://localhost:${process.env.PORT}`));
     } catch (error) {
         console.log("Failed to start server:", error);
     }
