@@ -53,8 +53,11 @@ const enrollInCourse = async (req, res) => {
       status: "enrolled",
     });
 
-    // Populate course details for response
-    await enrollment.populate("course", "title courseCode instructor");
+    // Populate course and user details for response
+    await enrollment.populate([
+      { path: "course", select: "title courseCode instructor" },
+      { path: "user", select: "name email studentId" },
+    ]);
 
     res.status(201).json({
       message: "Successfully enrolled in course",
@@ -130,7 +133,10 @@ const getEnrollmentStatus = async (req, res) => {
     const enrollment = await Enrollment.findOne({
       user: userId,
       course: courseId,
-    }).populate("course", "title courseCode");
+    }).populate([
+      { path: "course", select: "title courseCode instructor" },
+      { path: "user", select: "name email studentId" },
+    ]);
 
     if (!enrollment) {
       return res.status(200).json({
@@ -165,7 +171,10 @@ const getMyEnrollments = async (req, res) => {
     const enrollments = await Enrollment.find({
       user: userId,
       status: { $ne: "dropped" }, // Exclude dropped courses
-    }).populate("course");
+    }).populate([
+      { path: "course", select: "title courseCode instructor" },
+      { path: "user", select: "name email studentId" },
+    ]);
 
     res.status(200).json({
       message: "Enrollments fetched successfully",
