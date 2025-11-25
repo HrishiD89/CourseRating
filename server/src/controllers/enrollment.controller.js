@@ -9,7 +9,18 @@ import mongoose from "mongoose";
 const enrollInCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const userId = req.user._id; // From auth middleware
+
+    // Debug log
+    console.log("Controller req.user:", req.user);
+
+    // Ensure user is authenticated
+    if (!req.user || !req.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized - user info missing" });
+    }
+
+    const userId = req.user.id; // From auth middleware (JWT token uses 'id')
 
     // Validate course ID
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
@@ -62,7 +73,13 @@ const enrollInCourse = async (req, res) => {
 const dropCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const userId = req.user._id;
+
+    if (!req.user || !req.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized - user info missing" });
+    }
+    const userId = req.user.id;
 
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
       return res.status(400).json({ message: "Invalid Course ID format" });
@@ -98,7 +115,13 @@ const dropCourse = async (req, res) => {
 const getEnrollmentStatus = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const userId = req.user._id;
+
+    if (!req.user || !req.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized - user info missing" });
+    }
+    const userId = req.user.id;
 
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
       return res.status(400).json({ message: "Invalid Course ID format" });
@@ -132,7 +155,12 @@ const getEnrollmentStatus = async (req, res) => {
  */
 const getMyEnrollments = async (req, res) => {
   try {
-    const userId = req.user._id;
+    if (!req.user || !req.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized - user info missing" });
+    }
+    const userId = req.user.id;
 
     const enrollments = await Enrollment.find({
       user: userId,

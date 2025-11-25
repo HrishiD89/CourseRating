@@ -11,7 +11,13 @@ const rateCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
     const { rating } = req.body;
-    const userId = req.user._id;
+    // Ensure user is authenticated
+    if (!req.user || !req.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized - user info missing" });
+    }
+    const userId = req.user.id;
 
     // Validate course ID
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
@@ -72,7 +78,13 @@ const rateCourse = async (req, res) => {
 const getMyRating = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const userId = req.user._id;
+    // Ensure user is authenticated
+    if (!req.user || !req.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized - user info missing" });
+    }
+    const userId = req.user.id;
 
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
       return res.status(400).json({ message: "Invalid Course ID format" });

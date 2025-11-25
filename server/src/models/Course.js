@@ -24,12 +24,16 @@ const CourseSchema = new Schema({
     type: Number,
     required: true,
   },
+  department: {
+    type: String,
+    required: true,
+  },
   // For Rating/Review Feature
   avgRating: {
     type: Number,
     default: 0,
   },
-  totalReviews: {
+  totalRatings: {
     type: Number,
     default: 0,
   },

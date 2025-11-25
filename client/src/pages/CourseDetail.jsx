@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { courseAPI } from '../services/api';
+import { courseAPI, enrollmentAPI, ratingAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import StarRating from '../components/StarRating';
 
 export default function CourseDetail() {
   const { id } = useParams();
@@ -10,6 +11,14 @@ export default function CourseDetail() {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Enrollment state
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrollmentLoading, setEnrollmentLoading] = useState(false);
+  
+  // Rating state
+  const [userRating, setUserRating] = useState(0);
+  const [ratingLoading, setRatingLoading] = useState(false);
 
   const fetchCourseDetail = useCallback(async () => {
     try {
@@ -27,9 +36,84 @@ export default function CourseDetail() {
     }
   }, [id, logout, navigate]);
 
+  const fetchEnrollmentStatus = useCallback(async () => {
+    try {
+      const response = await enrollmentAPI.getEnrollmentStatus(id);
+      setIsEnrolled(response.data.enrolled);
+    } catch (err) {
+      console.error('Failed to fetch enrollment status:', err);
+    }
+  }, [id]);
+
+  const fetchUserRating = useCallback(async () => {
+    try {
+      const response = await ratingAPI.getMyRating(id);
+      if (response.data.rated) {
+        setUserRating(response.data.rating);
+      }
+    } catch (err) {
+      console.error('Failed to fetch user rating:', err);
+    }
+  }, [id]);
+
   useEffect(() => {
     fetchCourseDetail();
-  }, [fetchCourseDetail]);
+    fetchEnrollmentStatus();
+    fetchUserRating();
+  }, [fetchCourseDetail, fetchEnrollmentStatus, fetchUserRating]);
+
+  const handleEnroll = async () => {
+    setEnrollmentLoading(true);
+    try {
+      await enrollmentAPI.enrollInCourse(id);
+      setIsEnrolled(true);
+      alert('Successfully enrolled in the course!');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to enroll in course');
+    } finally {
+      setEnrollmentLoading(false);
+    }
+  };
+
+  const handleDrop = async () => {
+    if (!confirm('Are you sure you want to drop this course?')) {
+      return;
+    }
+    
+    setEnrollmentLoading(true);
+    try {
+      await enrollmentAPI.dropCourse(id);
+      setIsEnrolled(false);
+      setUserRating(0); // Reset rating when dropped
+      alert('Successfully dropped the course');
+      // Refresh course data to update average rating
+      fetchCourseDetail();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to drop course');
+    } finally {
+      setEnrollmentLoading(false);
+    }
+  };
+
+  const handleRatingChange = async (newRating) => {
+    if (!isEnrolled) {
+      alert('You must be enrolled in this course to rate it');
+      return;
+    }
+
+    setRatingLoading(true);
+    try {
+      await ratingAPI.rateCourse(id, newRating);
+      setUserRating(newRating);
+      // Refresh course data to update average rating
+      fetchCourseDetail();
+      alert('Rating submitted successfully!');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to submit rating');
+    } finally {
+      setRatingLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -62,7 +146,10 @@ export default function CourseDetail() {
             </div>
             <div className="text-center bg-white/10 backdrop-blur-sm p-4 rounded-lg">
               <div className="text-3xl font-bold">{course.avgRating?.toFixed(1) || 'N/A'}</div>
-              <div className="text-yellow-400 text-lg">★★★★☆</div>
+              <StarRating rating={course.avgRating || 0} readonly size="small" />
+              <div className="text-xs text-blue-100 mt-1">
+                {course.totalRatings || 0} {course.totalRatings === 1 ? 'rating' : 'ratings'}
+              </div>
             </div>
           </div>
         </div>
@@ -82,6 +169,33 @@ export default function CourseDetail() {
                 <p className="text-gray-700"><strong>Credits:</strong> {course.credits}</p>
               </div>
             </section>
+
+            {/* Rating Section - Only show if enrolled */}
+            {isEnrolled && (
+              <section className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Rate This Course</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  {userRating > 0 
+                    ? 'You can update your rating anytime' 
+                    : 'Share your experience with this course'}
+                </p>
+                <div className="flex items-center gap-4">
+                  <StarRating 
+                    rating={userRating} 
+                    onRatingChange={handleRatingChange}
+                    size="large"
+                  />
+                  {ratingLoading && (
+                    <span className="text-sm text-gray-500">Submitting...</span>
+                  )}
+                </div>
+                {userRating > 0 && (
+                  <p className="text-sm text-green-600 mt-2 font-medium">
+                    ✓ You rated this course {userRating} star{userRating !== 1 ? 's' : ''}
+                  </p>
+                )}
+              </section>
+            )}
           </div>
 
           {/* Sidebar Action */}
@@ -91,6 +205,15 @@ export default function CourseDetail() {
               <span className="text-xl font-bold text-gray-900">{course.credits} Credits</span>
             </div>
             
+            {/* Enrollment Status Badge */}
+            {isEnrolled && (
+              <div className="mb-4 bg-green-100 border border-green-300 rounded-lg p-3">
+                <p className="text-sm font-semibold text-green-800 flex items-center gap-2">
+                  <span className="text-lg">✓</span> Enrolled
+                </p>
+              </div>
+            )}
+            
             <button 
               onClick={() => navigate('/courses')}
               className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 rounded-lg shadow-md transition mb-2"
@@ -98,9 +221,23 @@ export default function CourseDetail() {
               Back to Courses
             </button>
             
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition transform hover:-translate-y-0.5">
-              Enroll Now
-            </button>
+            {!isEnrolled ? (
+              <button 
+                onClick={handleEnroll}
+                disabled={enrollmentLoading}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-3 rounded-lg shadow-md transition transform hover:-translate-y-0.5 disabled:transform-none"
+              >
+                {enrollmentLoading ? 'Enrolling...' : 'Enroll Now'}
+              </button>
+            ) : (
+              <button 
+                onClick={handleDrop}
+                disabled={enrollmentLoading}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold py-3 rounded-lg shadow-md transition"
+              >
+                {enrollmentLoading ? 'Dropping...' : 'Drop Course'}
+              </button>
+            )}
           </div>
         </div>
       </div>

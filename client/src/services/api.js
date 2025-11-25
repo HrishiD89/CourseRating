@@ -34,3 +34,18 @@ export const courseAPI = {
   getCourseById: (id) => api.get(`/course/${id}`),
   searchCourse: (title) => api.get(`/course/search/${title}`),
 };
+
+// Enrollment API calls
+export const enrollmentAPI = {
+  enrollInCourse: (courseId) => api.post(`/enrollment/enroll/${courseId}`),
+  dropCourse: (courseId) => api.delete(`/enrollment/drop/${courseId}`),
+  getEnrollmentStatus: (courseId) => api.get(`/enrollment/status/${courseId}`),
+  getMyEnrollments: () => api.get("/enrollment/my-courses"),
+};
+
+// Rating API calls
+export const ratingAPI = {
+  rateCourse: (courseId, rating) =>
+    api.post(`/rating/rate/${courseId}`, { rating }),
+  getMyRating: (courseId) => api.get(`/rating/my-rating/${courseId}`),
+};
