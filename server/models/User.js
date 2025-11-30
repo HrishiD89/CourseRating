@@ -3,9 +3,9 @@ import bcrypt from "bcrypt";
 
 // mongoose schema
 const userSchema = mongoose.Schema({
-    name : { type : String , require : true },
-    email : { type : String , require : true , unqiue : true , trim : true, lowercase : true},
-    password : { type : String , require : true },
+    name : { type : String , required : true },
+    email : { type : String , required : true , unique : true , trim : true, lowercase : true},
+    password : { type : String , required : true },
     role : { type : String , enum : ["user","admin"] , default : "user"}
 })
 // mongoose presave middleware for hash
