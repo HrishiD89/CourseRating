@@ -32,26 +32,54 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <form onChange={handleSubmit}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 flex-col">
+      <div className="mb-8">
+        <h1 className="text-3xl text-gray-800 max-w-sm text-center">
+          Log in to continue your learning journey
+        </h1>
+      </div>
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm bg-white p-6 rounded-lg shadow-md space-y-4 flex flex-col"
+      >
         <input
-          type="text"
+          className="w-full p-2 border border-gray-300 rounded
+                 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="email"
           placeholder="Email"
           name="email"
           onChange={(e) => {
             setEmail(e.target.value);
           }}
+          required
         />
         <input
-          type="text"
+          className="w-full p-2 border border-gray-300 rounded
+                 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="password"
           placeholder="Password"
           name="password"
           onChange={(e) => {
             setPassword(e.target.value);
           }}
         />
-        <button type="submit">Login</button>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded
+                   hover:bg-blue-700 transition cursor-pointer"
+        >
+          Login
+        </button>
       </form>
+
+      <div className="mt-4">
+        <p>
+          Don't have an account?{" "}
+          <a href="/register" className="text-blue-600 hover:underline">
+            Register
+          </a>
+        </p>
+      </div>
     </div>
   );
 };

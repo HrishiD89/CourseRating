@@ -3,30 +3,29 @@ import { Outlet, Link } from "react-router-dom";
 
 const Layout = () => {
   return (
-    <div>
-      <nav>
-        <Link to="/" style={{ marginRight: "10px" }}>
-          Login
-        </Link>
-        <Link to="/register" style={{ marginRight: "10px" }}>
-          Register
-        </Link>
-        <Link to="/courses" style={{ marginRight: "10px" }}>
-          Courses
-        </Link>
-        <Link to="/about" style={{ marginRight: "10px" }}>
-          About
-        </Link>
+    <div className="min-h-screen flex flex-col">
+      
+      {/* Navbar */}
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-6xl mx-auto flex gap-6 p-4">
+          <Link className="text-gray-600 hover:text-blue-600" to="/">Login</Link>
+          <Link className="text-gray-600 hover:text-blue-600" to="/register">Register</Link>
+          <Link className="text-gray-600 hover:text-blue-600" to="/courses">Courses</Link>
+          <Link className="text-gray-600 hover:text-blue-600" to="/about">About</Link>
+        </div>
       </nav>
 
-      <hr />
+      {/* Page Content */}
+        <Outlet />
 
-      <Outlet />
+      {/* Footer */}
+      <footer className="text-center text-sm text-gray-500 p-4">
+        FootBar
+      </footer>
 
-      <hr />
-      <p>FootBar</p>
     </div>
   );
 };
+
 
 export default Layout;

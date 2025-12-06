@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoConnect from "./config/db.js";
 import authRouter from "./router/auth.router.js";
-import { authMiddleWare } from "./middlewares/authMiddleWare.js";
+// import { authMiddleWare } from "./middlewares/authMiddleWare.js";
 import courseRouter from "./router/course.router.js";
 
 dotenv.config();
@@ -18,8 +18,8 @@ app.use(express.urlencoded({
 
 // routes
 app.use("/auth",authRouter);
-app.use("/course",authMiddleWare,courseRouter);
-
+// 
+app.use("/course",courseRouter);
 
 app.listen(process.env.PORT || 8080, async()=>{
     try{
