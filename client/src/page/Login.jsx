@@ -1,10 +1,12 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { setIsLoggedIn } = useContext(AuthContext);
 
   const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -22,11 +24,13 @@ const Login = () => {
       const res = await axios.post(`${BACKEND_API}/auth/login`, user);
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
+        setIsLoggedIn(true);
         setTimeout(() => {
           navigate("/courses");
         });
       }
     } catch (err) {
+      alert(err.response.data.error);
       console.error(err);
     }
   };

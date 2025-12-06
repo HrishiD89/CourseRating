@@ -12,20 +12,22 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
-app.use(express.urlencoded({
-    extended : true
-}))
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
 // routes
-app.use("/auth",authRouter);
-// 
-app.use("/course",courseRouter);
+app.use("/auth", authRouter);
+//
+app.use("/courses", courseRouter);
 
-app.listen(process.env.PORT || 8080, async()=>{
-    try{
-        await mongoConnect();
-        console.log(`Server is listening to PORT ${process.env.PORT}`);
-    }catch(err){
-        console.error(err);
-    }
-})
+app.listen(process.env.PORT || 8080, async () => {
+  try {
+    await mongoConnect();
+    console.log(`Server is listening to PORT ${process.env.PORT}`);
+  } catch (err) {
+    console.error(err);
+  }
+});

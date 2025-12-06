@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../AuthContext";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const { setIsLoggedIn } = useContext(AuthContext); // Access global state
 
   const navigate = useNavigate();
 
@@ -29,6 +32,7 @@ const Register = () => {
       const res = await axios.post(`${BACKEND_URL}/auth/register`, user);
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
+        setIsLoggedIn(true); // Update global state
         setTimeout(() => {
           navigate("/courses");
         }, 3000);
@@ -52,15 +56,18 @@ const Register = () => {
       <div className="mb-4">
         <h1 className="text-2xl text-gray-800">Sign up with email</h1>
       </div>
-      <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col bg-white p-6 rounded-md shadow-md space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm flex flex-col bg-white p-6 rounded-md shadow-md space-y-4"
+      >
         <input
-        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           type="text"
           placeholder="Name"
           onChange={(e) => setName(e.target.value)}
         />
         <input
-        className="w-full p-2 border border-gray-300 rounded
+          className="w-full p-2 border border-gray-300 rounded
                  focus:outline-none focus:ring-2 focus:ring-blue-500"
           type="email"
           required
@@ -68,13 +75,18 @@ const Register = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
-        className="w-full border border-gray-300 p-2 rounded focus:outline-0 focus:ring-2 focus:ring-blue-500"
+          className="w-full border border-gray-300 p-2 rounded focus:outline-0 focus:ring-2 focus:ring-blue-500"
           type="password"
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded
-                   hover:bg-blue-700 transition cursor-pointer">Register</button>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded
+                   hover:bg-blue-700 transition cursor-pointer"
+        >
+          Register
+        </button>
       </form>
 
       <div className="mt-4">
