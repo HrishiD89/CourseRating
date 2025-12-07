@@ -24,4 +24,4 @@ const enrollmentSchema = new mongoose.Schema(
 
 enrollmentSchema.index({ user: 1, course: 1 }, { unique: true });
 
-export default mongoose.model("Enrollement", enrollmentSchema);
+export default mongoose.model("Enrollment", enrollmentSchema);

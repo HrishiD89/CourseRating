@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import authInstance from "../utils/axiosInstance";
+import CourseRating from "../components/CourseRating";
 
 const CourseInfo = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [enrolled, setEnrolled] = useState(false);
   const { id } = useParams();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEnrolledCourse = async () => {
@@ -47,17 +50,28 @@ const CourseInfo = () => {
       alert("Course enrolled successfully");
     } catch (err) {
       console.error(err);
+      alert("You are not enrolled in this course");
+      navigate("/login");
     }
   };
 
   const handleDropCourse = async (e) => {
     e.preventDefault();
     try {
-      await authInstance.post(`/courses/drop`, { courseId: id });
+      const res = await authInstance.post(`/courses/drop`, { courseId: id });
       setEnrolled(false);
+
+      // Update course rating stats immediately
+      setCourse((prevCourse) => ({
+        ...prevCourse,
+        rating: res.data.rating,
+        noOfRating: res.data.noOfRating,
+      }));
+
       alert("Course dropped successfully");
     } catch (err) {
       console.error(err);
+      alert("Failed to drop course");
     }
   };
 
@@ -79,16 +93,28 @@ const CourseInfo = () => {
       <div className="flex flex-col md:flex-row gap-8 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-6">
         {/* Left side – course details */}
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            {course.courseName}
-          </h1>
-          <p className="text-gray-700 mb-4 line-clamp-4">
-            {course.courseDescription}
-          </p>
-          <p className="text-sm text-gray-500">
-            Created by{" "}
-            <span className="font-medium text-gray-700">{course.author}</span>
-          </p>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">
+              {course.courseName}
+            </h1>
+            <p className="text-gray-700  line-clamp-4">
+              {course.courseDescription}
+            </p>
+            <p className="text-sm text-gray-500">
+              Created by{" "}
+              <span className="font-medium text-gray-700">{course.author}</span>
+            </p>
+            <div className="flex items-center text-yellow-500 text-sm font-bold">
+              <span>★</span>
+              <span className="ml-1 text-gray-700">
+                {course.rating || "0.0"}
+              </span>
+              <span className="text-gray-400 text-xs font-normal ml-1">
+                ({course.noOfRating || 0})
+              </span>
+            </div>
+          </div>
+          {enrolled && <CourseRating course={course} setCourse={setCourse} />}
         </div>
 
         {/* Right side – image, enroll button, features */}

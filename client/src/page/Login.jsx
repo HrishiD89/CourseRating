@@ -2,11 +2,12 @@ import axios from "axios";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setIsLoggedIn } = useContext(AuthContext);
+  const { setIsLoggedIn, setUser } = useContext(AuthContext);
 
   const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -15,22 +16,25 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const user = {
+    const userPayload = {
       email,
       password,
     };
 
     try {
-      const res = await axios.post(`${BACKEND_API}/auth/login`, user);
+      const res = await axios.post(`${BACKEND_API}/auth/login`, userPayload);
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
+
+        // Decode token to get user info
+        const decoded = jwtDecode(res.data.token);
+        setUser(decoded);
         setIsLoggedIn(true);
-        setTimeout(() => {
-          navigate("/courses");
-        });
+
+        navigate("/courses");
       }
     } catch (err) {
-      alert(err.response.data.error);
+      alert(err.response?.data?.error || "Login failed");
       console.error(err);
     }
   };

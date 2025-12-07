@@ -2,13 +2,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { setIsLoggedIn } = useContext(AuthContext); // Access global state
+  const { setIsLoggedIn, setUser } = useContext(AuthContext); // Access global state
 
   const navigate = useNavigate();
 
@@ -32,7 +33,10 @@ const Register = () => {
       const res = await axios.post(`${BACKEND_URL}/auth/register`, user);
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
-        setIsLoggedIn(true); // Update global state
+
+        const decoded = jwtDecode(res.data.token);
+        setUser(decoded);
+        setIsLoggedIn(true);
         setTimeout(() => {
           navigate("/courses");
         }, 3000);
